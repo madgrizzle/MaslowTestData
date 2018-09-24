@@ -40,7 +40,7 @@ def translatePoint(xB, yB, xA, yA, angle):
     elif (angle <= 45 ) and (angle >=-45):
         angle *= -1.0
     elif (angle >= 135 ):
-        angle -= 90
+        angle -= 180
     elif (angle <= -135):
         angle += 180
         angle *= -1.0
@@ -80,13 +80,13 @@ file = "testImages\image2-1.png"
 testCount = 0
 outFile = open("cameraValues.csv","w")
 cv2.namedWindow("image",0)
-fileCount = len(glob.glob("circleTestImages\*.png"))
+fileCount = len(glob.glob("circleTestImages\*.jpg"))
 print "filecount:"+str(fileCount)
 averageDx = np.zeros([fileCount],dtype=float)
 averageDy = np.zeros([fileCount],dtype=float)
 averageDi = np.zeros([fileCount],dtype=float)
 
-for file in glob.glob("circleTestImages\*.png"):
+for file in glob.glob("circleTestImages\*.jpg"):
 #file = "testImages/image2-1.png"
     if (True):
         print file
@@ -95,7 +95,7 @@ for file in glob.glob("circleTestImages\*.png"):
             height, width, channels = image.shape
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             gray = cv2.GaussianBlur(gray, (15, 15), 2, 2)
-            circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, width/8, param1=60, param2=40, minRadius=5, maxRadius=100)
+            circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, width/8, param1=70, param2=20, minRadius=5, maxRadius=100)
             colors = ((0, 0, 255), (240, 0, 159), (0, 165, 255), (255, 255, 0), (255, 0, 255))
             xA = int(width/2)
             yA = int(height/2)
@@ -128,7 +128,7 @@ for file in glob.glob("circleTestImages\*.png"):
             print "Computed angle = "+str(math.degrees(angle))
             cv2.imshow("image", orig)
 
-            if c[2] > 10:
+            if c[2] > 5:
                 #continue
                 cv2.circle(orig,(int(c[0]),int(c[1])),c[2],(255,0,0),2)
                 xB = c[0]

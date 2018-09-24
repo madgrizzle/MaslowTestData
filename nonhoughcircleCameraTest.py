@@ -83,13 +83,13 @@ file = "testImages\image2-1.png"
 testCount = 0
 outFile = open("cameraValues.csv","w")
 cv2.namedWindow("image",0)
-fileCount = len(glob.glob("circleTestImages\*.png"))
+fileCount = len(glob.glob("circleTestImages\*.jpg"))
 print "filecount:"+str(fileCount)
 averageDx = np.zeros([fileCount],dtype=float)
 averageDy = np.zeros([fileCount],dtype=float)
 averageDi = np.zeros([fileCount],dtype=float)
 
-for file in glob.glob("circleTestImages\*.png"):
+for file in glob.glob("circleTestImages\*.jpg"):
 #file = "testImages/image2-1.png"
     if (True):
         print file
@@ -99,7 +99,7 @@ for file in glob.glob("circleTestImages\*.png"):
             height, width, channels = image.shape
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             gray = cv2.GaussianBlur(gray, (15, 15), 2, 2)
-            edged = cv2.Canny(gray, 40, 60)
+            edged = cv2.Canny(gray, 70, 90)
             #cv2.imshow("Canny", edged)
             edged = cv2.dilate(edged, None, iterations=1)
             edged = cv2.erode(edged, None, iterations=1)
@@ -109,8 +109,8 @@ for file in glob.glob("circleTestImages\*.png"):
             colors = ((0, 0, 255), (240, 0, 159), (0, 165, 255), (255, 255, 0), (255, 0, 255))
             refObj = None
 
-            #cv2.imshow("image", edged)
-            #cv2.waitKey(0)
+            cv2.imshow("image", edged)
+            cv2.waitKey(0)
             xA = int(width/2)
             yA = int(height/2)
 
@@ -119,8 +119,13 @@ for file in glob.glob("circleTestImages\*.png"):
             # find cnts with a minimum area
             filteredCnts = []
             for cTest in cnts:
-                if cv2.contourArea(cTest)>500:
+                (x,y),r = cv2.minEnclosingCircle(cTest)
+                cv2.circle(orig,(int(x),int(y)),int(r),(255,255,0),2)
+                if r>10:
                     filteredCnts.append(cTest)
+                    print ". "+str(cv2.contourArea(cTest))+", "+str(r)
+                else:
+                    print "X "+str(cv2.contourArea(cTest))+", "+str(r)
             print "filtered to "+str(len(filteredCnts))+" circles"
             circles = []
             minDist = 99999.0
