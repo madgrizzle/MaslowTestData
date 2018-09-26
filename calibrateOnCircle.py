@@ -43,16 +43,17 @@ def translatePoint(xB, yB, xA, yA, angle):
 
 def simplifyContour(c):
     tolerance = 0.01
+    sides = 15
     while True:
         _c = cv2.approxPolyDP(c, tolerance*cv2.arcLength(c,True), True)
-        if len(_c)<=4 or tolerance<0.5:
+        if len(_c)<=15 or tolerance>0.5:
             break
         tolerance += 0.01
-    if len(_c)<4:# went too small.. now lower the tolerance until four points or more are reached
+    if len(_c)<15:# went too small.. now lower the tolerance until four points or more are reached
         while True:
             tolerance -= 0.01
             _c = cv2.approxPolyDP(c, tolerance*cv2.arcLength(c,True), True)
-            if len(_c)>=4 or tolerance <= 0.1:
+            if len(_c)>=15 or tolerance <= 0.1:
                 break
 #    print "len:"+str(len(c))+", tolerance:"+str(tolerance)
     return _c #_c is the smallest approximation we can find with four our more
@@ -99,6 +100,9 @@ for file in glob.glob("singleCircle\*.png"):
             xA = int(width/2)
             yA = int(height/2)
 
+            cv2.imshow("image", edged)
+            cv2.waitKey(0)
+
             #orig = edged.copy()
             #orig = cv2.cvtColor(orig, cv2.COLOR_GRAY2BGR)
             orig = image.copy()
@@ -131,11 +135,6 @@ for file in glob.glob("singleCircle\*.png"):
                 box = np.array(box, dtype="int")
                 box = perspective.order_points(box)
                 cv2.drawContours(orig, [box.astype("int")], -1, (0, 255, 0), 2)
-
-                M = cv2.getRotationMatrix2D((xA,yA),_angle,1)
-                orig = cv2.warpAffine(orig,M,(width,height))
-
-
                 xB = np.average(box[:, 0])
                 yB = np.average(box[:, 1])
                 (tl, tr, br, bl) = box
@@ -143,16 +142,6 @@ for file in glob.glob("singleCircle\*.png"):
                 (trbrX, trbrY) = midpoint(tr, br)
                 D = dist.euclidean((tlblX,tlblY),(trbrX,trbrY))/markerWidth
                 print "Distance = "+str(D)
-                cos = math.cos(angle*3.141592/180.0)
-                sin = math.sin(angle*3.141592/180.0)
-                if (_angle<30):
-                    _angle = _angle *-1.0
-                print _angle
-                print xB
-                print yB
-                xB,yB = translatePoint(xB,yB,xA,yA,_angle)
-                print xB
-                print yB
                 #cv2.line(orig, (int(xB-15), int(yB)-15))
                 cv2.circle(orig, (int(xA), int(yA)), 10, colors[0], 1)
                 cv2.line(orig, (xA, yA-15), (xA, yA+15), colors[0], 1)
@@ -178,6 +167,7 @@ for file in glob.glob("singleCircle\*.png"):
                 #cv2.putText(orig, "{:.0f}, {:.0f}".format(box[3,0],box[3,1]), (box[3,0], box[3,1]),cv2.FONT_HERSHEY_SIMPLEX, 0.55, colors[0], 2)
                 #cv2.putText(orig, "{:.3f}, {:.3f}".format(xB,yB,0.0), (int(mX), int(mY - 40)),cv2.FONT_HERSHEY_SIMPLEX, 0.55, colors[0], 2)
                 cv2.putText(orig, "Dx:{:.3f}, Dy:{:.3f}->Di:{:.3f}mm".format(Dx,Dy,Dist), (15, 40),cv2.FONT_HERSHEY_SIMPLEX, 0.55, colors[0], 2)
+                cv2.putText(orig, "({:.3f}, {:.3f})".format(xB,yB), (15, 75),cv2.FONT_HERSHEY_SIMPLEX, 0.55, colors[0], 2)
                 outFile.write("{:.3f}, {:.3f}, {:.3f}\n".format(Dx,Dy,Dist))
                 if True:#(Dist>0.25):
                     cv2.imshow("image", orig)
